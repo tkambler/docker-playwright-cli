@@ -25,7 +25,8 @@ SCRIPT_PATH="${INSTALL_DIR}/playwright-cli"
 if ! docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
     echo "Image '$IMAGE_NAME' not found. Building it now..."
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-    docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
+    docker pull "$IMAGE_NAME"
+    # docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
 fi
 
 # Write the wrapper script
@@ -33,13 +34,16 @@ cat > "$SCRIPT_PATH" << 'WRAPPER'
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE_NAME="docker-playwright-cli:latest"
+IMAGE_NAME="tkambler/playwright-cli:latest"
 CONTAINER_NAME="playwright-cli-session"
 CONFIG="--config /etc/playwright-cli.config.json"
 
 is_running() {
     docker ps --filter "name=^${CONTAINER_NAME}$" --format '{{.Names}}' 2>/dev/null | grep -q .
 }
+
+# --ipc=host \
+# --shm-size=256m \
 
 ensure_container() {
     if is_running; then
@@ -50,8 +54,7 @@ ensure_container() {
     # Start a long-lived container in the background
     docker run -d \
         --init \
-        --ipc=host \
-        --shm-size=256m \
+        --shm-size=2g \
         --name "$CONTAINER_NAME" \
         -v "$(pwd):/work" \
         -w /work \
