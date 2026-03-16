@@ -52,11 +52,12 @@ ensure_container() {
     # Remove stale stopped container if it exists
     docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
     # Start a long-lived container in the background
+    mkdir -p "$HOME/playwright-cli"
     docker run -d \
         --init \
         --shm-size=2g \
         --name "$CONTAINER_NAME" \
-        -v "$(pwd):/work" \
+        -v "$HOME/playwright-cli:/work" \
         -w /work \
         --entrypoint tail \
         "$IMAGE_NAME" \
