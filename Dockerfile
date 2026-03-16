@@ -43,7 +43,7 @@ RUN mkdir -p /opt/google/chrome \
     && ln -s "$CHROMIUM_DIR/chrome" /opt/google/chrome/chrome
 
 # Default config: use chrome channel with sandbox disabled (required in Docker)
-RUN printf '{\n  "browser": {\n    "browserName": "chromium",\n    "launchOptions": {\n      "channel": "chrome",\n      "chromiumSandbox": false\n    }\n  }\n}\n' > /etc/playwright-cli.config.json
+RUN printf '{\n  "browser": {\n    "browserName": "chromium",\n    "launchOptions": {\n      "channel": "chrome",\n      "chromiumSandbox": false,\n      "args": ["--ignore-certificate-errors"]\n    },\n    "contextOptions": {\n      "ignoreHTTPSErrors": true,\n      "viewport": { "width": 1920, "height": 1080 }\n    }\n  }\n}\n' > /etc/playwright-cli.config.json
 
 WORKDIR /work
 
